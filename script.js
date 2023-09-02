@@ -1,50 +1,71 @@
 console.log(trelloData);
 
-// data redering file
+// Data rendering file 
 // Read trelloData, find the data display row and 
-// generate HTML elements based on the trelloData
+// generate HTML elements based on the trelloData 
 
-function renderingColumns(){
-    let trelloDataRawRootNode = document.getElementById("dataDisplayRow");
-    // Removing any stale or old HTML content:
-    trelloDataRawRootNode.innerHTML = "";
+function renderColumns(){
+	let trelloDataRowRootNode = document.getElementById("dataDisplayRow");
+	// Removing any stale or old HTML content:
+	trelloDataRowRootNode.innerHTML = "";
 
-    // Generating new HTML content:
-    trelloData.columns.forEach((column)) => {
-        console.log(column.name);
+	// Generating new HTML content:
+	trelloData.columns.forEach((column) => {
+		console.log(column.name);
 
-        let columnNode = document.createElement("div");
+		let columnNode = document.createElement("div");
 
-        columnNode.classList.add("trelloColumn");
+		columnNode.classList.add("trelloColumn");
 
-        // Create content to render column data
-        let columnHeading = document.createElement("h3");
-        columnHeading.innerText = column.name;
-        columnNode.appendChild(columnHeading);
+		// Give the columns some drag & drop event handling
+		columnNode.addEventListener("dragover", allowDrop);
 
-        column.cards.forEach((card) => {
-            // Find the card preview, copy it , save the copy to the variable
-            let newCard = document.getElementById("cardPreview").cloneNode(true);
 
-            if (!card.timestamp || isNaN(card.timestamp)){
-                card.timestamp = Date.now();
-                //Number like 12876534
-            }
-            newCard.id = card.timestamp;
+		// Create content to render column data
+		let columnHeading = document.createElement("h3");
+		columnHeading.innerText = column.name;
+		columnNode.appendChild(columnHeading);
 
-            // Find the h3 of the card title and change its content
-            newCard.querySelector(".cardDisplay-title").innerText = card.title;
+		column.cards.forEach((card) => {
+			// Find the card preview, copy it, save the copy to the variable
+			let newCard = document.getElementById("cardPreview").cloneNode(true);
 
-            // Same as above but for the paragraph tag
-            newCard.querySelector(".cardDisplay-content").innerText = card.content;
+			if (!card.timestamp || isNaN(card.timestamp)){
+				card.timestamp = Date.now();
+				// Number like 1287653419435
+			}
+			newCard.id = card.timestamp;
 
-            //After data is all done, attach caerd to column
-            columnNode.appendChild(newCard);
-        })
+			// Find the h3 of the card title and change its content
+			newCard.querySelector(".cardDisplay-title").innerText = card.title;
+			
+			// Same as above but for the paragraph tag
+			newCard.querySelector(".cardDisplay-content").innerText = card.content; 
 
-        trelloDataRawRootNode.appendChild(columnNode);
-    }
+			// Allow cards to be draggable
+			newCard.addEventListener("dragstart", drag);
+
+			// After data is all done, attach card to column
+			columnNode.appendChild(newCard);
+		})
+
+		trelloDataRowRootNode.appendChild(columnNode);
+	});
 }
+
+// When we drag a DOM element around,
+// tell the browser some data about what we are dragging
+function drag(event){
+	event.dataTransfer.setData("text", event.target.id)
+}
+
+// Removing default browser behaviour for elements
+// that receive a drag and drop 
+function allowDrop(event){
+	event.preventDefault();
+}
+
+
 
 
 
